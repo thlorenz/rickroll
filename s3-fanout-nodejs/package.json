@@ -1,15 +1,17 @@
 {
-  "name": "s3-unzip-fanout",
+  "name": "s3-fanout",
   "version": "0.1.0",
   "bin": {
-    "s3-unzip-fanout": "bin/cli"
+    "s3-fanout": "bin/cli"
   },
   "scripts": {
     "aws": "aws --endpoint-url=http://localhost:4566",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && (cd lambda/fanout && yarn build)",
     "cdkr": "cdk",
     "cdk": "cdklocal",
-    "up": "docker compose up"
+    "up": "docker compose up",
+    "build:lambda": "yarn build:fanout",
+    "build:fanout": "(cd lambda/fanout && yarn esbuild)"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
