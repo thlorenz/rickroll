@@ -1,0 +1,26 @@
+{
+  "name": "s3-unzip-fanout",
+  "version": "0.1.0",
+  "bin": {
+    "s3-unzip-fanout": "bin/cli"
+  },
+  "scripts": {
+    "aws": "aws --endpoint-url=http://localhost:4566",
+    "build": "tsc -p tsconfig.json",
+    "cdkr": "cdk",
+    "cdk": "cdklocal",
+    "up": "docker compose up"
+  },
+  "devDependencies": {
+    "@types/node": "10.17.27",
+    "aws-cdk": "2.33.0",
+    "aws-cdk-local": "^2.15.0",
+    "esbuild": "^0.14.49",
+    "esbuild-runner": "^2.2.1",
+    "prettier": "^2.7.1"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.33.0",
+    "constructs": "^10.0.0"
+  }
+}
