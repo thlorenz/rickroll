@@ -1,4 +1,10 @@
-import { Stack, StackProps, App, aws_s3 as s3 } from 'aws-cdk-lib'
+import {
+  Stack,
+  StackProps,
+  App,
+  aws_s3 as s3,
+  RemovalPolicy,
+} from 'aws-cdk-lib'
 import { dumpTrace } from './utils'
 
 export class S3UnzipFanoutStack extends Stack {
@@ -6,7 +12,11 @@ export class S3UnzipFanoutStack extends Stack {
     super(scope, id, props)
     dumpTrace(scope)
 
-    const bucket = new s3.Bucket(this, 'ZipfileBucket', { versioned: true })
+    const bucket = new s3.Bucket(this, 'ZipfileBucket', {
+      versioned: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    })
     dumpTrace(bucket)
   }
 }
