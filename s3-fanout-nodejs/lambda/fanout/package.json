@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "./dist/main.js",
   "scripts": {
-    "esbuild": "esbuild src/main.ts --outdir=dist --platform=node --format=cjs"
+    "esbuild": "esbuild src/main.ts --outdir=dist --platform=node --format=cjs",
+    "build": "tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.101",

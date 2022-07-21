@@ -2,6 +2,7 @@ import * as aws from 'aws-sdk'
 import { S3Event } from 'aws-lambda'
 import { strict as assert } from 'assert'
 import { GetObjectRequest } from 'aws-sdk/clients/s3'
+import { inspect } from 'util'
 
 // @ts-ignore
 const s3 = new aws.S3({
@@ -10,6 +11,10 @@ const s3 = new aws.S3({
   endpoint: `http://${process.env.LOCALSTACK_HOSTNAME}:4566`,
   s3ForcePathStyle: true,
 })
+
+function dump(obj: any, depth = 5) {
+  console.log(inspect(obj, { depth, colors: true }))
+}
 
 export async function handler(event: S3Event) {
   assert(event.Records.length === 1, 'expected one record exactly')
@@ -21,5 +26,5 @@ export async function handler(event: S3Event) {
     Key: key,
   }
   const bucket = s3.getObject(objectReq)
-  console.log(bucketName)
+  dump(record)
 }
