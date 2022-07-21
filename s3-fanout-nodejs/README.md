@@ -51,7 +51,7 @@ yarn cdk diff
 Then to have a look at our stack and the beautiful s3 bucket:
 
 ```
-yarn sdk ls
+yarn cdk ls
 yarn aws s3 ls
 ```
 

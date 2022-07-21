@@ -1,6 +1,6 @@
 import { inspect } from 'util'
 import debug from 'debug'
-import path from 'path'
+import * as path from 'path'
 import { promises as fs } from 'fs'
 import { execSync as exec } from 'child_process'
 
