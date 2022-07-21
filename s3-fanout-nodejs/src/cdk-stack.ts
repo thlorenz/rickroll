@@ -8,7 +8,11 @@ import {
 } from 'aws-cdk-lib'
 import { dumpTrace } from './utils'
 
-export class S3FanoutStack extends Stack {
+export type S3FanoutStackConfig = {
+  uploadBucketName: string
+}
+
+class S3FanoutStack extends Stack {
   constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props)
     dumpTrace(scope)
@@ -30,4 +34,9 @@ export class S3FanoutStack extends Stack {
     })
     bucket.grantRead(fanoutHandler)
   }
+}
+
+export function initS3FanoutStack(scope: App, id: string, props?: StackProps) {
+  const stack = new S3FanoutStack(scope, id, props)
+  return { stack }
 }
