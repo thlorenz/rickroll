@@ -20,13 +20,13 @@ yarn up
 In a separate terminal run:
 
 ```
-yarn cdk bootstrap
+yarn boot
 ```
 
 ### Generate CloudFormation Template
 
 Optionally run this in order to have the CloudFormation templates, etc. generated to
-`./cdk.out`:
+`./cdk.out` without deploying anything:
 
 ```
 yarn cdk synth
@@ -36,8 +36,8 @@ yarn cdk synth
 
 Run the below each time you make a change to the setup or code:
 
-````
-yarn cdk deploy
+```
+yarn deploy
 ```
 
 _Optionally_ run the below the diff we're about to deploy _before_ executing the above:
@@ -54,6 +54,14 @@ Then to have a look at our stack and the beautiful s3 bucket:
 yarn cdk ls
 yarn aws s3 ls
 ```
+
+### Upload Some Images
+
+```
+./sh/upload-images.ts
+```
+
+This will upload multiple images and trigger the lambda upload handler for each.
 
 ### Destroying Resources
 
