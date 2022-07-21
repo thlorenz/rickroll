@@ -2,13 +2,13 @@ import {
   Stack,
   StackProps,
   App,
+  aws_iam as iam,
   aws_s3 as s3,
-  aws_s3_notifications as s3n,
   aws_lambda as lambda,
-  CfnOutput,
   RemovalPolicy,
 } from 'aws-cdk-lib'
 import * as path from 'path'
+import { outputCloudFormationInfo } from './cdk-stack-output'
 import { dumpTrace } from './utils'
 
 export type S3FanoutStackConfig = {
@@ -21,12 +21,12 @@ class S3FanoutStack extends Stack {
     dumpTrace(scope)
 
     // Create S3 bucket
-    const bucket = new s3.Bucket(this, 'UploadBucket', {
+    const uploadBucket = new s3.Bucket(this, 'UploadBucket', {
       versioned: true,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     })
-    dumpTrace(bucket)
+    dumpTrace(uploadBucket)
 
     // Register FanoutHandler Lambda
     const fanoutHandler = new lambda.Function(this, 'FanoutHandler', {
@@ -36,36 +36,24 @@ class S3FanoutStack extends Stack {
         path.resolve(__dirname, '../lambda/fanout/dist')
       ),
       environment: {
-        BUCKET_NAME: bucket.bucketName,
+        BUCKET_NAME: uploadBucket.bucketName,
       },
     })
 
-    // Hook up S3 Triggers to FanoutHandler
+    // Hook up S3 Triggers to FanoutHandler doesn't work directly this way since localstack
+    // doesn't support S3BucketNotifications
+    // Therefore we attach the trigger via the `aws s3api` command until we figure out how
+    // to do this via the CDK API
+    /*
     bucket.addEventNotification(
       s3.EventType.OBJECT_CREATED,
-      new s3n.LambdaDestination(fanoutHandler),
-      { suffix: '.jpg' }
+      new s3n.LambdaDestination(fanoutHandler)
     )
-    bucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED,
-      new s3n.LambdaDestination(fanoutHandler),
-      { suffix: '.jpeg' }
-    )
-    bucket.addEventNotification(
-      s3.EventType.OBJECT_CREATED,
-      new s3n.LambdaDestination(fanoutHandler),
-      { suffix: '.png' }
-    )
-    // Grant Persmissions to lambda to read from the S3 bucket
-    bucket.grantRead(fanoutHandler)
+    */
 
-    // Dump Output to console
-    new CfnOutput(this, 'FanoutHandlerFunction', {
-      value: fanoutHandler.functionName,
-    })
-    new CfnOutput(this, 'FanoutHandlerFunctionLogs', {
-      value: fanoutHandler.logGroup.logGroupName,
-    })
+    // Grant Persmissions to lambda to read from the S3 bucket
+    uploadBucket.grantRead(fanoutHandler)
+    outputCloudFormationInfo(this, { fanoutHandler, uploadBucket })
   }
 }
 

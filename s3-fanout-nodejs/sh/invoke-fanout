@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-# TODO: how can we get that function name (it's dumped via ../src/cdk-stack.ts)
-yarn aws lambda invoke --function-name S3FanoutStack-FanoutHandlerE2BCE775-59c9688c response.json

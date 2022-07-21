@@ -14,7 +14,7 @@ const images = path.join(fixtures, 'images')
 const bucketName = getUploadBucketName()
 assert(bucketName != null, 'could not find bucket name, did you run deploy?')
 
-const cmd = `yarn aws s3 cp --recursive ${images} s3://${bucketName}/`
+const cmd = `yarn aws s3 cp ${images}/01_80x80.png s3://${bucketName}/`
 
 const res = exec(cmd)
 logInfo(dim(res.toString()))

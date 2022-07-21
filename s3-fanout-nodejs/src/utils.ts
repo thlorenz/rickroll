@@ -33,9 +33,12 @@ export function dumpTrace(obj: any, depth = 5) {
   logTrace(inspect(obj, { depth, colors: true }))
 }
 
+export const ENDPOINT_URL = 'http://localhost:4566'
 const bucketRx = /(s3fanoutstack-uploadbucket.+)$/
 
-export function getBucketName() {
+export function getUploadBucketName() {
+  // NOTE: trying to use CloudFormation output is not working as the latter uid part of the bucket is not present in the
+  // `cdk.out/*.template.json` file
   // NOTE: that even when passing `--output json` does this output text which
   // is why we parse it out
   const lines = exec(`yarn aws s3 ls`, { cwd: rootdir }).toString().split('\n')
@@ -47,6 +50,18 @@ export function getBucketName() {
     }
   }
 
+  return null
+}
+
+export function getLambdaInfo(prefix: string) {
+  const json = exec(
+    `aws --endpoint-url=${ENDPOINT_URL} lambda list-functions`
+  ).toString()
+  const res = JSON.parse(json)
+  for (const x of res.Functions) {
+    if (x.FunctionName.startsWith(prefix))
+      return { name: x.FunctionName, arn: x.FunctionArn }
+  }
   return null
 }
 
