@@ -38,7 +38,7 @@ for (let i = 0; i < IMAGES; i++) {
     const putAssetCmd = `
 yarn aws s3api put-object \
   --bucket ${bucketName} \
-  --key /${USER}/${TASK}/${asset} \
+  --key '${USER}|${TASK}|${asset}' \
   --body ${imagesDir}/${asset}`
 
     const res = exec(putAssetCmd)
@@ -50,7 +50,7 @@ yarn aws s3api put-object \
     const putMetaCmd = `
 yarn aws s3api put-object \
   --bucket ${bucketName} \
-  --key /${USER}/${TASK}/${meta} \
+  --key '${USER}|${TASK}|${meta}' \
   --body ${imagesDir}/${meta}`
 
     const res = exec(putMetaCmd)

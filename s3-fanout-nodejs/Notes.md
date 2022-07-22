@@ -154,3 +154,56 @@ Same goes for `UserId`.
   }
 }
 ```
+
+
+## S3 CP vs S3Api Put
+
+Comparing how `aws s3 cp` triggers our lambda vs. `aws s3api put-object`
+
+### `aws s3 cp` 
+
+```
+localstack.request.aws     : AWS s3.ListBuckets => 200
+l.s.a.lambda_executors     : Lambda executed in Event (asynchronous) mode, no response will be returned to caller
+l.u.c.container_client     : Getting networks for container: s3-fanout-nodejs-localstack-1
+localstack.request.aws     : AWS s3.PutObject => 200
+l.u.container_networking   : Determined main container network: s3-fanout-nodejs_default
+l.u.c.container_client     : Getting ipv4 address for container s3-fanout-nodejs-localstack-1 in network s3-fanout-nodejs_default.
+l.u.container_networking   : Determined main container target IP: 172.24.0.2
+l.s.a.lambda_executors     : Running lambda: arn:aws:lambda:us-east-1:000000000000:function:S3FanoutStack-FanoutHandlerE2BCE775-33c76b5c
+```
+
+### `aws s3api put-object`
+
+```
+localstack.request.aws     : AWS s3.ListBuckets => 200
+localstack.request.aws     : AWS s3.PutObject => 200
+localstack.request.aws     : AWS s3.PutObject => 200
+```
+
+## Grouping Files by Prefix
+
+After updating ./sh/upload-images.ts to use _s3api put-object_ directly we are able to identify
+file pairs via _prefix_.
+
+### Log Output Uploading two images + their metadata
+
+_slightly truncated for clarity_
+
+```
+START RequestId: 91bec653-59eb-1bec-1b47-9f5cf38a77c9 Version: $LATEST
+2022-07-22T19:36:47.745Z   91bec653-59eb-1bec-1b47-9f5cf38a77c9    INFO    not all needed files uploaded yet, gonna wait for one more
+END RequestId: 91bec653-59eb-1bec-1b47-9f5cf38a77c9
+
+START RequestId: d2b0d999-9eb2-1e9e-54cb-eb6703a38729 Version: $LATEST
+2022-07-22T19:36:48.775Z   d2b0d999-9eb2-1e9e-54cb-eb6703a38729    INFO    Ready to process thlorenz|1658518605058|01_80x80.json and thlorenz|1658518605058|01_80x80.png.
+END RequestId: d2b0d999-9eb2-1e9e-54cb-eb6703a38729
+
+START RequestId: f1bb2c50-c7c8-1152-c977-79a50d0baee7 Version: $LATEST
+2022-07-22T19:36:49.940Z   f1bb2c50-c7c8-1152-c977-79a50d0baee7    INFO    not all needed files uploaded yet, gonna wait for one more
+END RequestId: f1bb2c50-c7c8-1152-c977-79a50d0baee7
+
+START RequestId: 50fa84a7-27ed-1de3-608a-b5e6e3cb0012 Version: $LATEST
+2022-07-22T19:36:50.921Z   50fa84a7-27ed-1de3-608a-b5e6e3cb0012    INFO    Ready to process thlorenz|1658518605058|02_80x80.json and thlorenz|1658518605058|02_80x80.png.
+END RequestId: 50fa84a7-27ed-1de3-608a-b5e6e3cb0012
+```
