@@ -19,17 +19,41 @@ const IMAGES = process.env.N == null ? 2 : parseInt(process.env.N)
 const bucketName = getUploadBucketName()
 assert(bucketName != null, 'could not find bucket name, did you run deploy?')
 
-const assets = fs.readdirSync(imagesDir)
+const assets = fs
+  .readdirSync(imagesDir)
+  .filter((x) => path.extname(x) === '.png')
+  .sort()
+
+const metas = fs
+  .readdirSync(imagesDir)
+  .filter((x) => path.extname(x) === '.json')
+  .sort()
+
 logInfo(
-  `Uploading ${IMAGES} image(s). Override amount by setting N, i.e. N=3 ./sh/upload-images.ts`
+  `Uploading ${IMAGES} image(s) and metadata. Override amount by setting N, i.e. N=3 ./sh/upload-images.ts`
 )
 for (let i = 0; i < IMAGES; i++) {
-  const asset = assets[i]
-  const cmd = `yarn aws s3api put-object \
+  {
+    const asset = assets[i]
+    const putAssetCmd = `
+yarn aws s3api put-object \
   --bucket ${bucketName} \
   --key /${USER}/${TASK}/${asset} \
   --body ${imagesDir}/${asset}`
 
-  const res = exec(cmd)
-  logInfo(dim(res.toString()))
+    const res = exec(putAssetCmd)
+    logInfo(dim(res.toString()))
+  }
+
+  {
+    const meta = metas[i]
+    const putMetaCmd = `
+yarn aws s3api put-object \
+  --bucket ${bucketName} \
+  --key /${USER}/${TASK}/${meta} \
+  --body ${imagesDir}/${meta}`
+
+    const res = exec(putMetaCmd)
+    logInfo(dim(res.toString()))
+  }
 }
