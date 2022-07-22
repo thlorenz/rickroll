@@ -9,6 +9,9 @@ Please watch an informative video explaining everything below:
 
 [![rick](assets/aws-shot.png)](https://youtu.be/dQw4w9WgXcQ)
 
+## Resources
+
+- [aws-cdk-examples/typescript](https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript)
 
 ## LICENSE
 
