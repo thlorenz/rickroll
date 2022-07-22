@@ -1,11 +1,22 @@
 # S3 Upload and Fanout Pipeline
 
+## Original Goal
+
 This example reacts to a folder with multiple files uploaded to an S3 bucket.
 
 When that happens a lambda function will fire off an event for each contained
 file.
 
 Another lambda function will be instantiated for each file in order to process it.
+
+## Actual Implementation
+
+Turns out that we receive an S3 event for each uploaded file (not for each folder like assumed
+originally).
+
+Thus the fanout function already is invoked for each separately and there is nothing left to
+fan out. However this example still demonstrates how to wire this up and have it work with
+localstack (which turned out to be a bit tricky, see './sh/deploy/attach-s3-trigger.ts'.
 
 ## Quickstart
 

@@ -13,7 +13,7 @@
     "build:lambda": "yarn build:fanout",
     "build:fanout": "(cd lambda/fanout && yarn esbuild)",
     "boot": "yarn cdk bootstrap && yarn deploy",
-    "deploy": "yarn cdk deploy --require-approval=never && ./sh/deploy/attach-s3-trigger.ts"
+    "deploy": "yarn build:lambda && yarn cdk deploy --require-approval=never && ./sh/deploy/attach-s3-trigger.ts"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
