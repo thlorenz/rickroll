@@ -1,1 +1,5 @@
-{ "asset_id": 1 }
+{
+  "name": "The Rock and the Sea",
+  "imageFile": "01_80x80.png",
+  "description": "Sitting by itself, a rock engulfed by sea."
+}

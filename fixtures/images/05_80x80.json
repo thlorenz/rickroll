@@ -1,1 +1,5 @@
-{ "asset_id": 5 }
+{
+  "name": "Needing the Ocean",
+  "imageFile": "05_80x80.png",
+  "description": "It needs you to enter the ocean because you do need to."
+}

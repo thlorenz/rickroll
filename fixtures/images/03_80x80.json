@@ -1,1 +1,5 @@
-{ "asset_id": 3 }
+{
+  "name": "The Walrus",
+  "imageFile": "03_80x80.png",
+  "description": "Keeping warm despite the harsh conditions."
+}
