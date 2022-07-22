@@ -1,6 +1,6 @@
 #!/usr/bin/env esr
 
-import { logInfo, getLambdaInfo, ENDPOINT_URL } from '../src/utils'
+import { logInfo, getLambdaInfo } from '../src/utils'
 import { dim } from 'ansi-colors'
 import { strict as assert } from 'assert'
 import { spawn } from 'child_process'
