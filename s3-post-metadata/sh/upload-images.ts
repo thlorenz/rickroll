@@ -3,7 +3,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import { strict as assert } from 'assert'
-import { getUploadBucketName, logInfo } from '../src/utils'
+import { getUploadBucketName, logInfo, stringifyAllValues } from '../src/utils'
 import { execSync as exec } from 'child_process'
 
 import { dim } from 'ansi-colors'
@@ -33,27 +33,18 @@ logInfo(
   `Uploading ${IMAGES} image(s) and metadata. Override amount by setting N, i.e. N=3 ./sh/upload-images.ts`
 )
 for (let i = 0; i < IMAGES; i++) {
-  {
-    const asset = assets[i]
-    const putAssetCmd = `
+  const meta = require(path.join(imagesDir, metas[i]))
+  const babys3api = stringifyAllValues(meta)
+  const metaJSON = JSON.stringify(babys3api)
+
+  const asset = assets[i]
+  const putAssetCmd = `
 yarn aws s3api put-object \
   --bucket ${bucketName} \
   --key '${USER}|${TASK}|${asset}' \
+  --metadata '${metaJSON}' \
   --body ${imagesDir}/${asset}`
 
-    const res = exec(putAssetCmd)
-    logInfo(dim(res.toString()))
-  }
-
-  {
-    const meta = metas[i]
-    const putMetaCmd = `
-yarn aws s3api put-object \
-  --bucket ${bucketName} \
-  --key '${USER}|${TASK}|${meta}' \
-  --body ${imagesDir}/${meta}`
-
-    const res = exec(putMetaCmd)
-    logInfo(dim(res.toString()))
-  }
+  const res = exec(putAssetCmd)
+  logInfo(dim(res.toString()))
 }

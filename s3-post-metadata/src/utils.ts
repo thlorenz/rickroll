@@ -66,3 +66,11 @@ export function getLambdaInfo(
   }
   return null
 }
+
+export function stringifyAllValues(metadata: Record<string, string>) {
+  // aws s3api couldn't have figured that out?!?
+  for (const [key, val] of Object.entries(metadata)) {
+    metadata[key] = val.toString()
+  }
+  return metadata
+}

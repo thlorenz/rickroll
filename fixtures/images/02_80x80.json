@@ -1,1 +1,5 @@
-{ "asset_id": 2 }
+{
+  "name": "The Bridge to Nowhere",
+  "imageFile": "02_80x80.png",
+  "description": "Follow it and you will find yourself in a new world."
+}

@@ -1,1 +1,5 @@
-{ "asset_id": 4 }
+{
+  "name": "The Bench of Tranquility",
+  "imageFile": "04_80x80.png",
+  "description": "The Bench that is absolutely necessary in New York City."
+}
