@@ -14,9 +14,11 @@ Another lambda function will be instantiated for each file in order to process i
 Turns out that we receive an S3 event for each uploaded file (not for each folder like assumed
 originally).
 
-Thus the fanout function already is invoked for each separately and there is nothing left to
-fan out. However this example still demonstrates how to wire this up and have it work with
-localstack (which turned out to be a bit tricky, see './sh/deploy/attach-s3-trigger.ts'.
+Thus the _fanout_ function is kinda doing the opposite it was intended to originally.
+
+It groups an asset with its associated metadata via proper keys specified as part of
+_put-object_. Those two files can then be passed on to another lambda to process (or the
+_fanout_ lambda itself could do so).
 
 ## Quickstart
 
