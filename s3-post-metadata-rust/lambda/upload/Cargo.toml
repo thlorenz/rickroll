@@ -1,0 +1,11 @@
+[package]
+name = "upload"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lambda_runtime = "0.3.0"
+log = "0.4.14"
+serde = "1.0.126"
+simple_logger = "1.11.0"
+tokio = "1.6.1"

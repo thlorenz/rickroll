@@ -1,0 +1,8 @@
+edition = "2021"
+imports_granularity = "Crate"
+imports_indent = "Block"
+group_imports = "StdExternalCrate"
+reorder_imports = false
+reorder_modules = true
+reorder_impl_items = false
+max_width = 80

@@ -15,17 +15,15 @@ const ASSET_OUTPUT = '/asset-output'
 
 const lambdaUploadDir = path.resolve(__dirname, '../lambda/upload/')
 
-// TODO:
 function installLambdaBuildingInContainer(stack: Stack) {
-  // cargo build --release --target x86_64-unknown-linux-musl && \
-  // cp target/x86_64-unknown-linux-musl/release/upload /asset-output/bootstrap
   const cmd = `
-cp asset-input/bootstrap /asset-output/bootstrap
+cargo build --release --target x86_64-unknown-linux-musl && \
+cp /asset-input//target/x86_64-unknown-linux-musl/release/upload /asset-output/bootstrap
 `
 
   const docker = lambda.Code.fromAsset('lambda/upload', {
     bundling: {
-      // command: ['bash', '-c', cmd],
+      command: ['sh', '-c', cmd],
       image: DockerImage.fromBuild(lambdaUploadDir),
       workingDirectory: ASSET_INPUT,
       // Need this to work around directory not accessible issues
@@ -34,10 +32,16 @@ cp asset-input/bootstrap /asset-output/bootstrap
       // volumes: [{ hostPath: lambdaUploadDir, containerPath: ASSET_INPUT }],
     },
   })
+  new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
+    code: docker,
+    functionName: UPLOAD_FUNCTION_NAME,
+    handler: 'main',
+    runtime: lambda.Runtime.PROVIDED_AL2,
+  })
 }
 
 function installLambdaFromLocalBuild(stack: Stack) {
-  const dockerCopyOnly = lambda.Code.fromAsset('lambda/upload', {
+  const docker = lambda.Code.fromAsset('lambda/upload', {
     bundling: {
       command: [
         'sh',
@@ -50,7 +54,7 @@ function installLambdaFromLocalBuild(stack: Stack) {
     },
   })
   new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
-    code: dockerCopyOnly,
+    code: docker,
     functionName: UPLOAD_FUNCTION_NAME,
     handler: 'main',
     runtime: lambda.Runtime.PROVIDED_AL2,
