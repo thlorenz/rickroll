@@ -48,7 +48,7 @@ pub(crate) async fn my_handler(
     // prepare the response
     let resp = Response {
         req_id: ctx.request_id,
-        msg: format!("Hello {}!", name),
+        msg: format!("Hello you {}!", name),
     };
 
     // return `Response` (it will be serialized to JSON automatically by the runtime)
