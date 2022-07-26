@@ -7,6 +7,7 @@ const rootdir = path.join(__dirname, '..')
 
 export const STACK_NAME = 'S3PostMetadataStack'
 export const UPLOAD_HANDLER_NAME = 'UploadHandler'
+export const UPLOAD_FUNCTION_NAME = 'upload'
 
 export const logErrorDebug = debug('cdk:error')
 export const logInfoDebug = debug('cdk:info')

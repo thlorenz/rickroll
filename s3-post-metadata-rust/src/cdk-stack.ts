@@ -6,44 +6,82 @@ import {
   App,
 } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
-import { UPLOAD_HANDLER_NAME } from './utils'
+import { UPLOAD_FUNCTION_NAME, UPLOAD_HANDLER_NAME } from './utils'
 import * as path from 'path'
 
 const TARGET = 'x86_64-unknown-linux-musl'
-const CMD = `
-rustup target add ${TARGET} && \
-cargo build --release --target ${TARGET} && \
-cp target/${TARGET}/release/upload /asset-output/bootstrap
+const ASSET_INPUT = '/asset-input'
+const ASSET_OUTPUT = '/asset-output'
+
+const lambdaUploadDir = path.resolve(__dirname, '../lambda/upload/')
+
+// TODO:
+function installLambdaBuildingInContainer(stack: Stack) {
+  // cargo build --release --target x86_64-unknown-linux-musl && \
+  // cp target/x86_64-unknown-linux-musl/release/upload /asset-output/bootstrap
+  const cmd = `
+cp asset-input/bootstrap /asset-output/bootstrap
 `
 
-// @ts-ignore
-const fromPath = path.resolve(__dirname, '../lambda/upload/tmp/var.zip')
+  const docker = lambda.Code.fromAsset('lambda/upload', {
+    bundling: {
+      // command: ['bash', '-c', cmd],
+      image: DockerImage.fromBuild(lambdaUploadDir),
+      workingDirectory: ASSET_INPUT,
+      // Need this to work around directory not accessible issues
+      // failed to create directory `/usr/local/cargo/registry/index/github.com-1ecc6299db9ec823`
+      user: 'root:root',
+      // volumes: [{ hostPath: lambdaUploadDir, containerPath: ASSET_INPUT }],
+    },
+  })
+}
 
-const docker = lambda.Code.fromAsset('lambda/upload', {
-  bundling: {
-    command: ['bash', '-c', CMD],
-    image: DockerImage.fromRegistry('rust:1.62-slim'),
-  },
-})
+function installLambdaFromLocalBuild(stack: Stack) {
+  const dockerCopyOnly = lambda.Code.fromAsset('lambda/upload', {
+    bundling: {
+      command: [
+        'sh',
+        '-c',
+        `cp target/${TARGET}/release/upload /${ASSET_OUTPUT}/bootstrap`,
+      ],
+      workingDirectory: ASSET_INPUT,
+      image: DockerImage.fromRegistry('alpine'),
+      volumes: [{ hostPath: lambdaUploadDir, containerPath: ASSET_INPUT }],
+    },
+  })
+  new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
+    code: dockerCopyOnly,
+    functionName: UPLOAD_FUNCTION_NAME,
+    handler: 'main',
+    runtime: lambda.Runtime.PROVIDED_AL2,
+  })
+}
 
 export class S3PostMetadataStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(
+    installLambda: (stack: Stack) => void,
+    scope: Construct,
+    id: string,
+    props?: StackProps
+  ) {
     super(scope, id, props)
-
-    new lambda.Function(this, UPLOAD_HANDLER_NAME, {
-      code: docker,
-      functionName: 'upload',
-      handler: 'main',
-      runtime: lambda.Runtime.PROVIDED_AL2,
-    })
+    installLambda(this)
   }
 }
 
 export function initS3PostMetadataStack(
+  fromLocalBuild: boolean,
   scope: App,
   id: string,
   props?: StackProps
 ) {
-  const stack = new S3PostMetadataStack(scope, id, props)
+  const stack = new S3PostMetadataStack(
+    fromLocalBuild
+      ? installLambdaFromLocalBuild
+      : installLambdaBuildingInContainer,
+    scope,
+    id,
+    props
+  )
   return { stack }
 }

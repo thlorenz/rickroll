@@ -11,9 +11,10 @@
     "cdk": "cdklocal",
     "up": "docker compose up",
     "build:lambda": "yarn build:upload",
-    "build:upload": "(cd lambda/upload && yarn esbuild)",
-    "boot": "yarn cdk bootstrap && yarn deploy",
-    "deploy": "yarn cdk deploy --require-approval=never"
+    "build:upload": "(cd lambda/upload && cargo build --release --target x86_64-unknown-linux-musl)",
+    "boot": "yarn cdk bootstrap",
+    "deploy": "yarn build:lambda && yarn cdk deploy --require-approval=never",
+    "deploy:local": "yarn build:lambda && LOCAL_BUILD=1 yarn cdk deploy --require-approval=never"
   },
   "devDependencies": {
     "@types/ansi-colors": "^3.2.2",
