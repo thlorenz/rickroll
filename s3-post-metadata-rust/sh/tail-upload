@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+DOCKER_CONTAINER='s3-post-metadata-rust-localstack-1_lambda_arn_aws_lambda_us-east-1_000000000000_function_upload'
+
+docker logs --follow $DOCKER_CONTAINER

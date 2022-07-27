@@ -5,7 +5,7 @@ import { dim } from 'ansi-colors'
 import { strict as assert } from 'assert'
 import { spawn } from 'child_process'
 
-const lambdaInfo = getLambdaInfo()
+const lambdaInfo = getLambdaInfo('upload')
 
 assert(
   lambdaInfo != null,
