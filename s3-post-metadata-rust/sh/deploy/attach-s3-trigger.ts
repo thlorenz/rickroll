@@ -18,7 +18,7 @@ const tmpdir = os.tmpdir()
 const configPath = path.join(tmpdir, 's3-notif-config.json')
 
 const bucketName = getUploadBucketName()
-const lambdaInfo = getLambdaInfo()
+const lambdaInfo = getLambdaInfo('upload')
 
 assert(
   bucketName != null,

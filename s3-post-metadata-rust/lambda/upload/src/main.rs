@@ -1,6 +1,7 @@
 // This example requires the following input to succeed:
 // { "name": "some name" }
 
+use aws_lambda_events::event::s3::S3Event;
 use lambda_runtime::{handler_fn, Context, Error};
 use log::LevelFilter;
 use serde::{Deserialize, Serialize};
@@ -33,11 +34,20 @@ async fn main() -> Result<(), Error> {
         .init()
         .unwrap();
 
-    let func = handler_fn(my_handler);
+    let func = handler_fn(s3_event_handler);
     lambda_runtime::run(func).await?;
     Ok(())
 }
 
+pub(crate) async fn s3_event_handler(
+    event: S3Event,
+    ctx: Context,
+) -> Result<(), Error> {
+    println!("event {:#?}", event);
+    Ok(())
+}
+
+#[allow(unused)]
 pub(crate) async fn my_handler(
     event: Request,
     ctx: Context,

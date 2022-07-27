@@ -2,12 +2,15 @@ import {
   Stack,
   StackProps,
   aws_lambda as lambda,
+  aws_s3 as s3,
   DockerImage,
   App,
+  RemovalPolicy,
 } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { UPLOAD_FUNCTION_NAME, UPLOAD_HANDLER_NAME } from './utils'
 import * as path from 'path'
+import { outputCloudFormationInfo } from './cdk-stack-output'
 
 const TARGET = 'x86_64-unknown-linux-musl'
 const ASSET_INPUT = '/asset-input'
@@ -15,6 +18,9 @@ const ASSET_OUTPUT = '/asset-output'
 
 const lambdaUploadDir = path.resolve(__dirname, '../lambda/upload/')
 
+// -----------------
+// Lambda Installation
+// -----------------
 function installLambdaBuildingInContainer(stack: Stack) {
   // NOTE: this is not how cargo-chef is supposed to work, the `cp` command is
   // all we should need, however I couldn't get the binary to get updated that
@@ -42,10 +48,9 @@ cp /asset-input//target/x86_64-unknown-linux-musl/release/upload /asset-output/b
       // Need this to work around directory not accessible issues
       // failed to create directory `/usr/local/cargo/registry/index/github.com-1ecc6299db9ec823`
       user: 'root:root',
-      // volumes: [{ hostPath: lambdaUploadDir, containerPath: ASSET_INPUT }],
     },
   })
-  new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
+  return new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
     code: docker,
     functionName: UPLOAD_FUNCTION_NAME,
     handler: 'main',
@@ -66,7 +71,7 @@ function installLambdaFromLocalBuild(stack: Stack) {
       volumes: [{ hostPath: lambdaUploadDir, containerPath: ASSET_INPUT }],
     },
   })
-  new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
+  return new lambda.Function(stack, UPLOAD_HANDLER_NAME, {
     code: docker,
     functionName: UPLOAD_FUNCTION_NAME,
     handler: 'main',
@@ -74,15 +79,27 @@ function installLambdaFromLocalBuild(stack: Stack) {
   })
 }
 
+// -----------------
+// AWS Stack
+// -----------------
 export class S3PostMetadataStack extends Stack {
   constructor(
-    installLambda: (stack: Stack) => void,
+    installLambda: (stack: Stack) => lambda.Function,
     scope: Construct,
     id: string,
     props?: StackProps
   ) {
     super(scope, id, props)
-    installLambda(this)
+    // Create S3 bucket
+    const uploadBucket = new s3.Bucket(this, 'UploadBucket', {
+      versioned: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    })
+    const uploadHandler = installLambda(this)
+
+    uploadBucket.grantRead(uploadHandler)
+    outputCloudFormationInfo(this, { uploadHandler, uploadBucket })
   }
 }
 
