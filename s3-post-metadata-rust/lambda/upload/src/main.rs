@@ -1,10 +1,13 @@
 // This example requires the following input to succeed:
 // { "name": "some name" }
 
-use aws_lambda_events::event::s3::S3Event;
+use aws_lambda_events::event::s3::{S3Event, S3EventRecord};
+use aws_types::SdkConfig;
 use lambda_runtime::{handler_fn, Context, Error};
 use log::LevelFilter;
+use s3::{Endpoint, Region};
 use serde::{Deserialize, Serialize};
+use aws_sdk_s3 as s3;
 use simple_logger::SimpleLogger;
 
 /// This is also a made-up example. Requests come into the runtime as unicode
@@ -41,11 +44,64 @@ async fn main() -> Result<(), Error> {
 
 pub(crate) async fn s3_event_handler(
     event: S3Event,
-    ctx: Context,
+    _ctx: Context,
 ) -> Result<(), Error> {
-    println!("event {:#?}", event);
+    eprintln!("Got event");
+    let record: &S3EventRecord = &event.records[0];
+    eprintln!("Got record");
+    // NOTE: the below crashes the function afaik due to trying to interact with the environment
+    // let shared_config: SdkConfig = aws_config::from_env().load().await;
+    // let client = s3_client(&shared_config);
+    let endpoint_resolver = Endpoint::immutable(
+        "http://localhost:4566/".parse().expect("valid URI"),
+    );
+
+    let mut config = SdkConfig::builder()
+        .region(Region::new("us-east-1"))
+        .endpoint_resolver(endpoint_resolver);
+    config.set_timeout_config(None);
+    config.set_retry_config(None);
+    config.set_sleep_impl(None); // avoid aws_smithy_client warning
+    let config = config.build();
+
+    eprintln!("built config {:#?}", config);
+
+    let client = aws_sdk_s3::Client::new(&config);
+    eprintln!("Got client");
+    let res = client.list_buckets().send().await?;
+    eprintln!("Got res");
+    let buckets = res.buckets().unwrap_or_default();
+    let num_buckets = buckets.len();
+    eprintln!("event {:#?}, buckets: {}", record, num_buckets);
     Ok(())
 }
+
+fn s3_local_client() -> aws_sdk_s3::Client {
+    let s3_config_builder = aws_sdk_s3::config::Config::builder()
+        .endpoint_resolver(Endpoint::immutable(
+            "http://localhost:4566/".parse().expect("valid URI"),
+        ));
+    aws_sdk_s3::Client::from_conf(s3_config_builder.build())
+}
+
+/* THe below is querying the environment which seems to break inside lambda
+fn use_localstack() -> bool {
+    std::env::var("LOCALSTACK").unwrap_or_default() == "true"
+}
+
+fn localstack_endpoint() -> Endpoint {
+    Endpoint::immutable(Uri::from_static("http://localhost:4566/"))
+}
+
+fn s3_client(conf: &SdkConfig) -> aws_sdk_s3::Client {
+    let mut s3_config_builder = aws_sdk_s3::config::Builder::from(conf);
+    if use_localstack() {
+        s3_config_builder =
+            s3_config_builder.endpoint_resolver(localstack_endpoint());
+    }
+    aws_sdk_s3::Client::from_conf(s3_config_builder.build())
+}
+*/
 
 #[allow(unused)]
 pub(crate) async fn my_handler(
