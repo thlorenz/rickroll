@@ -11,10 +11,10 @@ here since we re-build on container startup.
 
 For more info see `./src/cdk-stack.ts` - `installLambdaBuildingInContainer`.
 
-Run `yarn boot` once and then the below everytime want to deploy a change.
+Run `yarn boot:docker` once and then the below everytime want to deploy a change.
 
 ```
-yarn deploy
+yarn deploy:docker
 ```
 
 ### Building locally and deploying artifact

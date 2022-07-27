@@ -12,9 +12,11 @@
     "up": "docker compose up",
     "build:lambda": "yarn build:upload",
     "build:upload": "(cd lambda/upload && cargo build --release --target x86_64-unknown-linux-musl)",
-    "boot": "yarn cdk bootstrap",
+    "boot": "yarn boot:local",
+    "boot:docker": "yarn cdk bootstrap",
     "boot:local": "LOCAL_BUILD=1 yarn cdk bootstrap",
-    "deploy": "yarn cdk deploy --require-approval=never && ./sh/deploy/attach-s3-trigger.ts",
+    "deploy": "yarn deploy:local",
+    "deploy:docker": "yarn cdk deploy --require-approval=never && ./sh/deploy/attach-s3-trigger.ts",
     "deploy:local": "yarn build:lambda && LOCAL_BUILD=1 yarn cdk deploy --require-approval=never && ./sh/deploy/attach-s3-trigger.ts"
   },
   "devDependencies": {
